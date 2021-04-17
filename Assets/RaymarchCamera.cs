@@ -6,7 +6,11 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class RaymarchCamera : SceneViewFilter {
     [SerializeField] private Shader shader;
+
+    [Header("Setup")]
     [SerializeField] private float maxDistance;
+    [SerializeField] [Range(1, 300)] private int maxIteration;
+    [SerializeField] [Range(0.1f, 0.001f)] private float accuracy;
 
     [Header("Signed Distance Field")]
     [SerializeField] private Color mainColor;
@@ -25,6 +29,11 @@ public class RaymarchCamera : SceneViewFilter {
     [SerializeField] private Vector2 shadowDistance;
     [SerializeField] [Range(0, 4)] private float shadowIntensity;
     [SerializeField] [Range(1, 128)] private float shadowPenumbra;
+
+    [Header("Amibient Occulusion")]
+    [SerializeField] [Range(0.01f, 10.0f)] private float aoStepSize;
+    [SerializeField] [Range(1, 5)] private int aoIteration;
+    [SerializeField] [Range(0f, 1f)] private float aoIntensity;
 
     private Material raymarchMat;
     private Material RaymarchMat {
@@ -53,9 +62,12 @@ public class RaymarchCamera : SceneViewFilter {
 
         RaymarchMat.SetMatrix("_CamFrustum", CamFrustum(Camera));
         RaymarchMat.SetMatrix("_CamToWorld", Camera.cameraToWorldMatrix);
-        RaymarchMat.SetFloat("_MaxDistance", maxDistance);
-        RaymarchMat.SetColor("_MainColor", mainColor);
 
+        RaymarchMat.SetFloat("_MaxDistance", maxDistance);
+        RaymarchMat.SetInt("_MaxIteration", maxIteration);
+        RaymarchMat.SetFloat("_Accuracy", accuracy);
+
+        RaymarchMat.SetColor("_MainColor", mainColor);
         RaymarchMat.SetVector("_Sphere1", sphere1);
         RaymarchMat.SetVector("_Sphere2", sphere2);
         RaymarchMat.SetVector("_Box1", box1);
@@ -69,6 +81,10 @@ public class RaymarchCamera : SceneViewFilter {
         RaymarchMat.SetVector("_ShadowDistance", shadowDistance);
         RaymarchMat.SetFloat("_ShadowIntensity", shadowIntensity);
         RaymarchMat.SetFloat("_ShadowPenumbra", shadowPenumbra);
+
+        RaymarchMat.SetFloat("_AoStepSize", aoStepSize);
+        RaymarchMat.SetFloat("_AoIteration", aoIteration);
+        RaymarchMat.SetFloat("_AoIntensity", aoIntensity);
 
         RenderTexture.active = destination;
         raymarchMat.SetTexture("_MainTex", source);

@@ -17,7 +17,10 @@
             sampler2D _MainTex;
             uniform sampler2D _CameraDepthTexture;
             uniform float4x4 _CamFrustum, _CamToWorld;
+
             uniform float _MaxDistance;
+            uniform int _MaxIteration;
+            uniform float _Accuracy;
 
             uniform float4 _LightDir;
             uniform float3 _LightCol;
@@ -31,6 +34,10 @@
             uniform float _Box1Round;
             uniform float _BoxSphereSmooth;
             uniform float _SphereIntersectSmooth;
+
+            uniform float _AoStepSize;
+            uniform float _AoIteration;
+            uniform float _AoIntensity;
 
 
             struct appdata {
@@ -110,19 +117,40 @@
                 return result;
             }
 
+            float ambientOcculusion(float3 p, float3 n) {
+                float step =_AoStepSize;
+                float ao = 0.0;
+                float dist;
+
+                for(int i = 1; i <= _AoIteration; i++) {
+                    dist = step * i;
+                    ao += max(0.0,(dist - distanceField(p + n * dist)) / dist);
+                }
+                return (1 - ao * _AoIntensity);
+            }
+
             float3 shading(float3 p, float3 n) {
+                float3 result;
+                //diffuse color
+                float3 color = _MainColor.rgb;
+
                 //directional light
-                float result = (_LightCol * dot(-_LightDir, n) * 0.5 + 0.5) * _LightIntensity;
+                float3 light = (_LightCol * dot(-_LightDir, n) * 0.5 + 0.5) * _LightIntensity;
+
                 //shadows
                 float shadow = softShadow(p, -_LightDir, _ShadowDistance.x, _ShadowDistance.y, _ShadowPenumbra) * 0.5 + 0.5;
                 shadow = max(0, pow(shadow, _ShadowIntensity));
-                result *= shadow;
+
+                //ambient occulusion
+                float ao = ambientOcculusion(p, n);
+
+                result = color * light * shadow * ao;
                 return result;
             }
 
             fixed4 raymarching(float3 ro, float3 rd, float depth) {
                 fixed4 result = fixed4(1,1,1,1);
-                const int max_iteration = 128;
+                const int max_iteration = _MaxIteration;
                 float t = 0;//distance travelled along the ray direction
                 for(int i = 0; i < max_iteration; i++) {
                     if (t > _MaxDistance || t >= depth){
@@ -134,11 +162,11 @@
                     //check for hit in distance field
                     float d = distanceField(p);
                     //we hit something
-                    if (d < 0.01) {
+                    if (d < _Accuracy) {
                         //shading
                         float3 n = getNormal(p);
                         float3 s = shading(p, n);
-                        result = fixed4(_MainColor.rgb * s,1);
+                        result = fixed4(s,1);
                         break;
                     }
                     t += d;
