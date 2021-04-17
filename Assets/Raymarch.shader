@@ -189,6 +189,29 @@
                     float3 n = getNormal(hitPosition);
                     float3 s = shading(hitPosition, n);
                     result = fixed4(s, 1);
+                    result += fixed4(texCUBE(_ReflectionCube, n).rgb * _EnvReflectionIntensity * _ReflectionIntensity, 0);
+                    //reflection
+                    if (_ReflectionCount > 0) {
+                        rayDirection = normalize(reflect(rayDirection, n));
+                        rayOrigin = hitPosition + rayDirection * 0.01;
+                        hit = raymarching(rayOrigin, rayDirection, _MaxDistance, _MaxDistance * 0.5, _MaxIteration / 2, hitPosition);
+                        if (hit) {
+                            n = getNormal(hitPosition);
+                            s = shading(hitPosition, n);
+                            result += fixed4(s * _ReflectionIntensity, 0);
+
+                            if (_ReflectionCount > 1) {
+                                rayDirection = normalize(reflect(rayDirection, n));
+                                rayOrigin = hitPosition + rayDirection * 0.01;
+                                hit = raymarching(rayOrigin, rayDirection, _MaxDistance, _MaxDistance * 0.25, _MaxIteration / 4, hitPosition);
+                                if (hit) {
+                                    n = getNormal(hitPosition);
+                                    s = shading(hitPosition, n);
+                                    result += fixed4(s * _ReflectionIntensity * 0.5, 0);
+                                }
+                            }
+                        }
+                    }
                 }
                 else {
                     result = fixed4(0,0,0,0);

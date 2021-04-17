@@ -33,8 +33,8 @@ public class RaymarchCamera : SceneViewFilter {
     [SerializeField] [Range(1, 5)] private int aoIteration;
     [SerializeField] [Range(0f, 1f)] private float aoIntensity;
 
-    [Header("Amibient Occulusion")]
-    [SerializeField] [Range(1, 2)] private int reflectionCount;
+    [Header("Reflection")]
+    [SerializeField] [Range(0, 2)] private int reflectionCount;
     [SerializeField] [Range(0f, 1f)] private float reflectionIntensity;
     [SerializeField] [Range(0f, 1f)] private float envReflectionIntensity;
     [SerializeField] private Cubemap reflectionCube;
