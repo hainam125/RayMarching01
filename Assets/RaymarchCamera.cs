@@ -7,11 +7,24 @@ using UnityEngine;
 public class RaymarchCamera : SceneViewFilter {
     [SerializeField] private Shader shader;
     [SerializeField] private float maxDistance;
+
+    [Header("Signed Distance Field")]
     [SerializeField] private Color mainColor;
-    [SerializeField] private Vector4 sphere1;
+    [SerializeField] private Vector4 sphere1, sphere2;
     [SerializeField] private Vector4 box1;
-    [SerializeField] private Vector3 modInterval;
+    [SerializeField] private float box1Round;
+    [SerializeField] private float boxSphereSmooth;
+    [SerializeField] private float sphereIntersectSmooth;
+
+    [Header("Directional Light")]
     [SerializeField] private Transform directionLight;
+    [SerializeField] private Color lightColor;
+    [SerializeField] private float lightIntensity;
+
+    [Header("Shadow")]
+    [SerializeField] private Vector2 shadowDistance;
+    [SerializeField] [Range(0, 4)] private float shadowIntensity;
+    [SerializeField] [Range(1, 128)] private float shadowPenumbra;
 
     private Material raymarchMat;
     private Material RaymarchMat {
@@ -42,10 +55,20 @@ public class RaymarchCamera : SceneViewFilter {
         RaymarchMat.SetMatrix("_CamToWorld", Camera.cameraToWorldMatrix);
         RaymarchMat.SetFloat("_MaxDistance", maxDistance);
         RaymarchMat.SetColor("_MainColor", mainColor);
+
         RaymarchMat.SetVector("_Sphere1", sphere1);
+        RaymarchMat.SetVector("_Sphere2", sphere2);
         RaymarchMat.SetVector("_Box1", box1);
-        RaymarchMat.SetVector("_ModInterval", modInterval);
+        RaymarchMat.SetFloat("_Box1Round", box1Round);
+        RaymarchMat.SetFloat("_BoxSphereSmooth", boxSphereSmooth);
+        RaymarchMat.SetFloat("_SphereIntersectSmooth", sphereIntersectSmooth);
+
         RaymarchMat.SetVector("_LightDir", directionLight ? directionLight.forward : Vector3.down);
+        RaymarchMat.SetColor("_LightCol", lightColor);
+        RaymarchMat.SetFloat("_LightIntensity", lightIntensity);
+        RaymarchMat.SetVector("_ShadowDistance", shadowDistance);
+        RaymarchMat.SetFloat("_ShadowIntensity", shadowIntensity);
+        RaymarchMat.SetFloat("_ShadowPenumbra", shadowPenumbra);
 
         RenderTexture.active = destination;
         raymarchMat.SetTexture("_MainTex", source);
