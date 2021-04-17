@@ -8,6 +8,7 @@ public class RaymarchCamera : MonoBehaviour {
     [SerializeField] private Shader shader;
     [SerializeField] private float maxDistance;
     [SerializeField] private Vector4 sphere1;
+    [SerializeField] private Transform directionLight;
 
     private Material raymarchMat;
     private Material RaymarchMat {
@@ -38,6 +39,7 @@ public class RaymarchCamera : MonoBehaviour {
         RaymarchMat.SetMatrix("_CamToWorld", Camera.cameraToWorldMatrix);
         RaymarchMat.SetFloat("_MaxDistance", maxDistance);
         RaymarchMat.SetVector("_Sphere1", sphere1);
+        RaymarchMat.SetVector("_LightDir", directionLight ? directionLight.forward : Vector3.down);
 
         RenderTexture.active = destination;
         GL.PushMatrix();
