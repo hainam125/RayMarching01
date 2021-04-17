@@ -4,7 +4,7 @@ using UnityEngine;
 
 [RequireComponent(typeof(Camera))]
 [ExecuteInEditMode]
-public class RaymarchCamera : MonoBehaviour {
+public class RaymarchCamera : SceneViewFilter {
     [SerializeField] private Shader shader;
     [SerializeField] private float maxDistance;
     [SerializeField] private Vector4 sphere1;
@@ -42,6 +42,7 @@ public class RaymarchCamera : MonoBehaviour {
         RaymarchMat.SetVector("_LightDir", directionLight ? directionLight.forward : Vector3.down);
 
         RenderTexture.active = destination;
+        raymarchMat.SetTexture("_MainTex", source);
         GL.PushMatrix();
         GL.LoadOrtho();
         RaymarchMat.SetPass(0);
