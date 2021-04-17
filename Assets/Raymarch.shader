@@ -12,6 +12,7 @@
             #pragma target 3.0;
 
             #include "UnityCG.cginc"
+            #include "DistanceFunctions.cginc"
 
             sampler2D _MainTex;
             uniform sampler2D _CameraDepthTexture;
@@ -19,7 +20,11 @@
             uniform float _MaxDistance;
 
             uniform float4 _LightDir;
-            uniform float4 _Sphere1;
+
+            uniform fixed4 _MainColor;
+            uniform float4 _Sphere1, _Box1;
+            uniform float3 _ModInterval;
+
 
             struct appdata {
                 float4 vertex : POSITION;
@@ -45,13 +50,13 @@
                 return o;
             }
 
-            float sdSphere(float3 p, float r) {
-                return length(p) - r;
-            }
-
             float distanceField(float3 p) {
+                float modX = pMod1(p.x, _ModInterval.x);
+                float modY = pMod1(p.y, _ModInterval.y);
+                float modZ = pMod1(p.z, _ModInterval.z);
                 float sphere1 = sdSphere(p - _Sphere1.xyz, _Sphere1.w);
-                return sphere1;
+                float box1 = sdBox(p - _Box1.xyz, _Box1.www);
+                return opS(sphere1, box1);
             }
 
             float3 getNormal(float3 p) {
@@ -82,7 +87,7 @@
                         //shading
                         float3 n = getNormal(p);
                         float light = dot(-_LightDir, n);
-                        result = fixed4(fixed3(1,1,1) * light,1);
+                        result = fixed4(_MainColor.rgb * light,1);
                         break;
                     }
                     t += d;

@@ -7,7 +7,10 @@ using UnityEngine;
 public class RaymarchCamera : SceneViewFilter {
     [SerializeField] private Shader shader;
     [SerializeField] private float maxDistance;
+    [SerializeField] private Color mainColor;
     [SerializeField] private Vector4 sphere1;
+    [SerializeField] private Vector4 box1;
+    [SerializeField] private Vector3 modInterval;
     [SerializeField] private Transform directionLight;
 
     private Material raymarchMat;
@@ -38,7 +41,10 @@ public class RaymarchCamera : SceneViewFilter {
         RaymarchMat.SetMatrix("_CamFrustum", CamFrustum(Camera));
         RaymarchMat.SetMatrix("_CamToWorld", Camera.cameraToWorldMatrix);
         RaymarchMat.SetFloat("_MaxDistance", maxDistance);
+        RaymarchMat.SetColor("_MainColor", mainColor);
         RaymarchMat.SetVector("_Sphere1", sphere1);
+        RaymarchMat.SetVector("_Box1", box1);
+        RaymarchMat.SetVector("_ModInterval", modInterval);
         RaymarchMat.SetVector("_LightDir", directionLight ? directionLight.forward : Vector3.down);
 
         RenderTexture.active = destination;
