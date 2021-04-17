@@ -14,11 +14,9 @@ public class RaymarchCamera : SceneViewFilter {
 
     [Header("Signed Distance Field")]
     [SerializeField] private Color mainColor;
-    [SerializeField] private Vector4 sphere1, sphere2;
-    [SerializeField] private Vector4 box1;
-    [SerializeField] private float box1Round;
-    [SerializeField] private float boxSphereSmooth;
-    [SerializeField] private float sphereIntersectSmooth;
+    [SerializeField] private Vector4 sphere;
+    [SerializeField] private float sphereSmooth;
+    [SerializeField] private float degreeRotate;
 
     [Header("Directional Light")]
     [SerializeField] private Transform directionLight;
@@ -34,6 +32,12 @@ public class RaymarchCamera : SceneViewFilter {
     [SerializeField] [Range(0.01f, 10.0f)] private float aoStepSize;
     [SerializeField] [Range(1, 5)] private int aoIteration;
     [SerializeField] [Range(0f, 1f)] private float aoIntensity;
+
+    [Header("Amibient Occulusion")]
+    [SerializeField] [Range(1, 2)] private int reflectionCount;
+    [SerializeField] [Range(0f, 1f)] private float reflectionIntensity;
+    [SerializeField] [Range(0f, 1f)] private float envReflectionIntensity;
+    [SerializeField] private Cubemap reflectionCube;
 
     private Material raymarchMat;
     private Material RaymarchMat {
@@ -68,12 +72,9 @@ public class RaymarchCamera : SceneViewFilter {
         RaymarchMat.SetFloat("_Accuracy", accuracy);
 
         RaymarchMat.SetColor("_MainColor", mainColor);
-        RaymarchMat.SetVector("_Sphere1", sphere1);
-        RaymarchMat.SetVector("_Sphere2", sphere2);
-        RaymarchMat.SetVector("_Box1", box1);
-        RaymarchMat.SetFloat("_Box1Round", box1Round);
-        RaymarchMat.SetFloat("_BoxSphereSmooth", boxSphereSmooth);
-        RaymarchMat.SetFloat("_SphereIntersectSmooth", sphereIntersectSmooth);
+        RaymarchMat.SetVector("_Sphere", sphere);
+        RaymarchMat.SetFloat("_SphereSmooth", sphereSmooth);
+        RaymarchMat.SetFloat("_DegreeRotate", degreeRotate);
 
         RaymarchMat.SetVector("_LightDir", directionLight ? directionLight.forward : Vector3.down);
         RaymarchMat.SetColor("_LightCol", lightColor);
@@ -85,6 +86,11 @@ public class RaymarchCamera : SceneViewFilter {
         RaymarchMat.SetFloat("_AoStepSize", aoStepSize);
         RaymarchMat.SetFloat("_AoIteration", aoIteration);
         RaymarchMat.SetFloat("_AoIntensity", aoIntensity);
+
+        RaymarchMat.SetInt("_ReflectionCount", reflectionCount);
+        RaymarchMat.SetFloat("_ReflectionIntensity", reflectionIntensity);
+        RaymarchMat.SetFloat("_EnvReflectionIntensity", envReflectionIntensity);
+        RaymarchMat.SetTexture("_ReflectionCube", reflectionCube);
 
         RenderTexture.active = destination;
         raymarchMat.SetTexture("_MainTex", source);
